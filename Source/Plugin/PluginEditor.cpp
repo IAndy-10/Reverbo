@@ -18,7 +18,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
     // Unpack HTML from binary data to a temp dir and load
     auto tempDir = juce::File::getSpecialLocation(juce::File::tempDirectory)
-                       .getChildFile("AudioPlugin02_" +
+                       .getChildFile("Reverbo_" +
                                      juce::String(juce::Time::currentTimeMillis()));
     tempDir.createDirectory();
 

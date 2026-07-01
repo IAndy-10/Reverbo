@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(AudioPlugin02 VERSION 0.3.0)
+project(Reverbo VERSION 0.3.0)
 
 # ============================================================
 # C++ Standard
@@ -28,12 +28,12 @@ FetchContent_MakeAvailable(JUCE)
 # Plugin Definition
 # ============================================================
 
-juce_add_plugin(AudioPlugin02
+juce_add_plugin(Reverbo
     COMPANY_NAME "YourCompany"
     PLUGIN_MANUFACTURER_CODE Ycmp
     PLUGIN_CODE Ap02
     FORMATS Standalone VST3 AU
-    PRODUCT_NAME "Audio Plugin 02"
+    PRODUCT_NAME "Reverbo"
 
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT TRUE
@@ -52,13 +52,13 @@ juce_add_plugin(AudioPlugin02
     AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
-juce_generate_juce_header(AudioPlugin02)
+juce_generate_juce_header(Reverbo)
 
 # ============================================================
 # Source Files
 # ============================================================
 
-target_sources(AudioPlugin02 PRIVATE
+target_sources(Reverbo PRIVATE
     # Plugin core
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
@@ -109,7 +109,7 @@ target_sources(AudioPlugin02 PRIVATE
     Source/DSP/DiffusionNetwork/Chorus.cpp
 )
 
-target_include_directories(AudioPlugin02 PRIVATE
+target_include_directories(Reverbo PRIVATE
     Source/Plugin
     Source/DSP
     Source/Parameters
@@ -137,18 +137,18 @@ add_custom_target(BuildSvelteUI ALL
 # Embed Web Resources Into Binary
 # ============================================================
 
-juce_add_binary_data(AudioPlugin02_Resources
+juce_add_binary_data(Reverbo_Resources
     SOURCES
         WebUI/dist/index.html
 )
 
-add_dependencies(AudioPlugin02_Resources BuildSvelteUI)
+add_dependencies(Reverbo_Resources BuildSvelteUI)
 
 # ============================================================
 # Compile Definitions & Linking
 # ============================================================
 
-target_compile_definitions(AudioPlugin02 PUBLIC
+target_compile_definitions(Reverbo PUBLIC
     JUCE_WEB_BROWSER=1
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
@@ -157,13 +157,13 @@ target_compile_definitions(AudioPlugin02 PUBLIC
 )
 
 if(APPLE)
-    target_compile_options(AudioPlugin02 PRIVATE
+    target_compile_options(Reverbo PRIVATE
         -Wno-deprecated-declarations
     )
 endif()
 
-target_link_libraries(AudioPlugin02 PRIVATE
-    AudioPlugin02_Resources
+target_link_libraries(Reverbo PRIVATE
+    Reverbo_Resources
     juce::juce_audio_utils
     juce::juce_audio_processors
     juce::juce_gui_basics
@@ -188,5 +188,5 @@ macro(copy_resources_to_target target_name)
     endif()
 endmacro()
 
-copy_resources_to_target(AudioPlugin02)
-copy_resources_to_target(AudioPlugin02_Standalone)
+copy_resources_to_target(Reverbo)
+copy_resources_to_target(Reverbo_Standalone)

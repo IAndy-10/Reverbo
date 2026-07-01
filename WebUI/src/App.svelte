@@ -54,7 +54,7 @@
     <!-- ========== TOP BAR ========== -->
     <div class="top-bar">
         <div class="plugin-title">
-            <span class="title-main">Audio Plugin 02</span>
+            <span class="title-main">Reverbo</span>
         </div>
         <!-- 2a: Master bypass -->
         <div class="top-bar-right">

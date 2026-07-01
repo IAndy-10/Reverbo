@@ -1,4 +1,4 @@
-# AudioPlugin02 — Architecture
+# Reverbo — Architecture
 
 **Version:** 0.3.0
 **Type:** JUCE audio plugin (VST3 / AU / Standalone)
@@ -11,7 +11,7 @@
 ## 1. Project Structure
 
 ```
-AudioPlugin02/
+Reverbo/
 ├── CMakeLists.txt
 ├── Source/
 │   ├── Plugin/
@@ -310,7 +310,7 @@ Fine-grained reactivity: updating one store only re-renders components subscribe
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ Header: "Audio Plugin 02"                              │
+│ Header: "Reverbo"                              │
 ├──────────┬──────────┬────────────────┬────────┬───────┤
 │  Input   │  Early   │   Diffusion    │ Chorus │  Out  │
 │  Filter  │ Reflect. │   Network      │        │       │
@@ -359,7 +359,7 @@ cd WebUI && npm run build
 **Web asset embedding:** Svelte builds to `WebUI/dist/index.html`. CMake embeds it as binary data (`juce_add_binary_data`). At runtime, `PluginEditor` unpacks the HTML to a temp directory and loads it locally in the WebBrowserComponent.
 
 **Plugin output paths:**
-- Standalone: `build/AudioPlugin02_artefacts/Standalone/Audio Plugin 02.app`
+- Standalone: `build/Reverbo_artefacts/Standalone/Reverbo.app`
 - VST3: auto-copied to `~/Library/Audio/Plug-Ins/VST3/` after each build
 
 ---
