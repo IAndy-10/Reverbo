@@ -1,6 +1,6 @@
 #include "PluginProcessor.h"
-#include "ParameterLayout.h"
-#include "ParameterIDs.h"
+#include "../Parameters/ParameterLayout.h"
+#include "../Parameters/ParameterIDs.h"
 #include "PluginEditor.h"
 
 using namespace PluginParamIDs;

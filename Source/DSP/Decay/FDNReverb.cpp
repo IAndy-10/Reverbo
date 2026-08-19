@@ -2,13 +2,12 @@
 #include <cmath>
 #include <algorithm>
 
-static constexpr double kPi = 3.14159265358979323846;
 
 void FDNReverb::prepare(double sampleRate) {
     sr = sampleRate;
     double ratio = sampleRate / 44100.0;
 
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
         // Allocate at maximum size (sizeScale=1.0 → factor=1.5) so setSize(1.0) never clamps.
         int maxLen = static_cast<int>(BASE_DELAYS[i] * ratio * 1.5) + 32;
         delayLines[i].prepare(maxLen);
@@ -52,7 +51,7 @@ void FDNReverb::setSize(float s) {
     sizeScale = s;
     if (sr <= 0.0) return;
     double ratio = sr / 44100.0;
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
         // Note: changing delay lengths at runtime can cause clicks.
         // We clamp to current buffer capacity.
         int newLen = static_cast<int>(BASE_DELAYS[i] * ratio * (0.5 + s));
@@ -107,13 +106,13 @@ void FDNReverb::setCutEnabled(bool c)  { cutEnabledFlag  = c; }
 void FDNReverb::updateDecayGains() {
     if (frozen) {
         // Freeze: maintain signal with maximum feedback
-        for (int i = 0; i < N; ++i)
+        for (size_t i = 0; i < static_cast<size_t>(N); ++i)
             decayGain[i] = 0.9999f;
         return;
     }
 
     float rt60 = decayMs * 0.001f;
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
         float delaySec = static_cast<float>(delayLens[i]) / static_cast<float>(sr);
         if (rt60 > 0.0f && delaySec > 0.0f) {
             // g = 10^(-3 * T60 / RT60) → gives -60 dB after RT60 seconds
@@ -145,7 +144,7 @@ void FDNReverb::process(juce::AudioBuffer<float>& buffer) {
 
         // --- Read delay line outputs and apply damping ---
         std::array<float, N> y;
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
             // Per-line modulation (subtle vibrato to prevent metallic ringing)
             float mod = modLFOs[i].getNext() * modDepth[i];
             float readPos = static_cast<float>(delayLens[i]) + mod;
@@ -166,7 +165,7 @@ void FDNReverb::process(juce::AudioBuffer<float>& buffer) {
 
         // --- Write back into delay lines (feedback + new input) ---
         // cut mode: when frozen with cut active, block new input to preserve frozen tail
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
             float newInput = (i % 2 == 0) ? diffL : diffR;
             float writeVal = (frozen && cutEnabledFlag) ? y[i] : (newInput + y[i]);
             delayLines[i].write(writeVal);
@@ -175,7 +174,7 @@ void FDNReverb::process(juce::AudioBuffer<float>& buffer) {
         // --- Mix outputs (even → L, odd → R) ---
         float outL = 0.0f, outR = 0.0f;
         static constexpr float OUT_SCALE = 0.35355339059f; // 1/sqrt(8)
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
             if (i % 2 == 0) outL += y[i];
             else             outR += y[i];
         }
@@ -188,7 +187,7 @@ void FDNReverb::process(juce::AudioBuffer<float>& buffer) {
 }
 
 void FDNReverb::reset() {
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
         delayLines[i].clear();
         dampFilters[i].reset();
         modLFOs[i].reset();

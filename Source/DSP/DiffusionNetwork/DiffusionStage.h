@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    float processChannel(float in, DelayLine& dl, int len, float& feedbackState) {
+    float processChannel(float in, DelayLine& dl, int len, float& /*feedbackState*/) {
         float delayed = dl.read(len);
         float feedback = in + coeff * delayed;
         dl.write(feedback);

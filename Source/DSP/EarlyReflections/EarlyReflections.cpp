@@ -5,7 +5,7 @@ void EarlyReflections::prepare(double sampleRate) {
     sr = sampleRate;
     double ratio = sampleRate / 44100.0;
 
-    for (int t = 0; t < NUM_TAPS; ++t) {
+    for (size_t t = 0; t < static_cast<size_t>(NUM_TAPS); ++t) {
         tapL[t] = static_cast<int>(BASE_TAPS_L[t] * ratio);
         tapR[t] = static_cast<int>(BASE_TAPS_R[t] * ratio);
         delayL[t].prepare(tapL[t] + 4);
@@ -36,13 +36,13 @@ void EarlyReflections::processOut(const juce::AudioBuffer<float>& input,
         float inL = (numChannels >= 1) ? input.getSample(0, i) : 0.0f;
         float inR = (numChannels >= 2) ? input.getSample(1, i) : inL;
 
-        for (int t = 0; t < NUM_TAPS; ++t) {
+        for (size_t t = 0; t < static_cast<size_t>(NUM_TAPS); ++t) {
             delayL[t].write(inL);
             delayR[t].write(inR);
         }
 
         float erL = 0.0f, erR = 0.0f;
-        for (int t = 0; t < NUM_TAPS; ++t) {
+        for (size_t t = 0; t < static_cast<size_t>(NUM_TAPS); ++t) {
             float g = TAP_GAINS_GRADUAL[t] + shape * (TAP_GAINS_RAPID[t] - TAP_GAINS_GRADUAL[t]);
             g *= amount;
             erL += delayL[t].read(tapL[t]) * g;
@@ -58,7 +58,7 @@ void EarlyReflections::processOut(const juce::AudioBuffer<float>& input,
 }
 
 void EarlyReflections::reset() {
-    for (int t = 0; t < NUM_TAPS; ++t) {
+    for (size_t t = 0; t < static_cast<size_t>(NUM_TAPS); ++t) {
         delayL[t].clear();
         delayR[t].clear();
     }
@@ -79,14 +79,14 @@ void EarlyReflections::process(juce::AudioBuffer<float>& buffer) {
         float inR = (numChannels >= 2) ? buffer.getSample(1, i) : inL;
 
         // Write into each delay line
-        for (int t = 0; t < NUM_TAPS; ++t) {
+        for (size_t t = 0; t < static_cast<size_t>(NUM_TAPS); ++t) {
             delayL[t].write(inL);
             delayR[t].write(inR);
         }
 
         // Accumulate taps — blend between gradual and rapid gain profiles via shape.
         float erL = 0.0f, erR = 0.0f;
-        for (int t = 0; t < NUM_TAPS; ++t) {
+        for (size_t t = 0; t < static_cast<size_t>(NUM_TAPS); ++t) {
             float g = TAP_GAINS_GRADUAL[t] + shape * (TAP_GAINS_RAPID[t] - TAP_GAINS_GRADUAL[t]);
             g *= amount;
             erL += delayL[t].read(tapL[t]) * g;
