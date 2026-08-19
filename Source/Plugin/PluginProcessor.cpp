@@ -181,6 +181,11 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     smoothDecay.setTargetValue(apvts.getRawParameterValue(decay.getParamID())->load());
     smoothReflectGain.setTargetValue(apvts.getRawParameterValue(reflectGain.getParamID())->load());
     smoothDiffuseGain.setTargetValue(apvts.getRawParameterValue(diffuseGain.getParamID())->load());
+    smoothDiffusion.setTargetValue(apvts.getRawParameterValue(diffusion.getParamID())->load());
+    smoothSize.setTargetValue(apvts.getRawParameterValue(PluginParamIDs::size.getParamID())->load());
+    smoothDamping.setTargetValue(apvts.getRawParameterValue(damping.getParamID())->load());
+    smoothFeedback.setTargetValue(apvts.getRawParameterValue(feedback.getParamID())->load());
+    smoothCrossoverFreq.setTargetValue(apvts.getRawParameterValue(crossoverFreq.getParamID())->load());
 
     // Save dry signal before any processing
     dryWetMixer.saveDry(buffer);
@@ -211,12 +216,12 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     // ===== PANEL 3: DIFFUSION NETWORK + DECAY =====
     bool isFrozen = apvts.getRawParameterValue(PluginParamIDs::freeze.getParamID())->load() > 0.5f;
     fdnReverb.setFrozen(isFrozen);
-    fdnReverb.setDecayMs(smoothDecay.skip(numSamples));   // B4: smoothed decay
-    fdnReverb.setDiffusion(apvts.getRawParameterValue(diffusion.getParamID())->load());
-    fdnReverb.setSize(apvts.getRawParameterValue(PluginParamIDs::size.getParamID())->load());
-    fdnReverb.setDamping(apvts.getRawParameterValue(damping.getParamID())->load());
-    fdnReverb.setFeedback(apvts.getRawParameterValue(feedback.getParamID())->load());
-    fdnReverb.setCrossoverFreq(apvts.getRawParameterValue(crossoverFreq.getParamID())->load());
+    fdnReverb.setDecayMs(smoothDecay.skip(numSamples));
+    fdnReverb.setDiffusion(smoothDiffusion.skip(numSamples));
+    fdnReverb.setSize(smoothSize.skip(numSamples));
+    fdnReverb.setDamping(smoothDamping.skip(numSamples));
+    fdnReverb.setFeedback(smoothFeedback.skip(numSamples));
+    fdnReverb.setCrossoverFreq(smoothCrossoverFreq.skip(numSamples));
     fdnReverb.setReverbMode(static_cast<int>(apvts.getRawParameterValue(reverbMode.getParamID())->load()));
     fdnReverb.setHighFilterType(apvts.getRawParameterValue(highFilterType.getParamID())->load() > 0.5f);
     fdnReverb.setInputScale(apvts.getRawParameterValue(PluginParamIDs::scale.getParamID())->load());

@@ -31,6 +31,8 @@ void Chorus::setRate(float hz) {
     rate = hz;
     lfoL.setFrequency(hz);
     lfoR.setFrequency(hz);
+    // Re-establish 90° offset relative to L's current phase whenever rate changes.
+    lfoR.reset(std::fmod(lfoL.getPhase() + 0.25, 1.0));
 }
 
 void Chorus::reset() {
@@ -59,14 +61,16 @@ void Chorus::process(juce::AudioBuffer<float>& buffer) {
             float inL = buffer.getSample(0, i);
             delayL.write(inL);
             float wet = delayL.readInterpolated(readPosL);
-            buffer.setSample(0, i, inL + amount * (wet - inL));
+            // Fixed 50/50 dry+wet mix: amount controls modulation depth only (via depthSamples),
+            // not the dry/wet ratio. Prevents the comb-filter amplitude sweep that sounds like tremolo.
+            buffer.setSample(0, i, (inL + wet) * 0.5f);
         }
 
         if (numChannels >= 2) {
             float inR = buffer.getSample(1, i);
             delayR.write(inR);
             float wet = delayR.readInterpolated(readPosR);
-            buffer.setSample(1, i, inR + amount * (wet - inR));
+            buffer.setSample(1, i, (inR + wet) * 0.5f);
         }
     }
 }
