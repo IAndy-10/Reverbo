@@ -1,8 +1,28 @@
 # Reverbo
 
-A stereo algorithmic reverb plugin built around an 8-line **Feedback Delay Network (FDN)**. Produces dense, smooth, natural-sounding reverb tails with frequency-dependent decay, early reflections, and optional modulation. Ships as VST3, AU, and Standalone on macOS.
+A stereo algorithmic reverb plugin built around an 8-line **Feedback Delay Network (FDN)**.
 
-The UI is a Svelte WebView embedded in the plugin window, communicating with the C++ audio engine via JUCE's `juce://` URL-intercept bridge.
+## 📥 Download
+
+**Latest Release:** [Reverbo v1.0.0](https://github.com/IAndy-10/Reverbo/releases/latest)
+
+### Quick Install (macOS)
+
+1. **Download** the `.zip` from [Releases](https://github.com/IAndy-10/Reverbo/releases)
+2. **Unzip** and copy the plugins:
+   - `Reverbo.vst3` → `~/Library/Audio/Plug-Ins/VST3/`
+   - `Reverbo.component` → `~/Library/Audio/Plug-Ins/Components/`
+   - `Reverbo.app` → `/Applications/` (optional, for standalone)
+3. **Rescan** plugins in your DAW (restart DAW if needed)
+
+### Supported Formats
+- **VST3** (macOS 11+)
+- **AU** (macOS 10.13+)
+- **Standalone** (macOS 11+)
+
+---
+
+Produces dense, smooth, natural-sounding reverb tails with frequency-dependent decay, early reflections, and optional modulation. The UI is a Svelte WebView embedded in the plugin window, communicating with the C++ audio engine via JUCE's `juce://` URL-intercept bridge.
 
 ---
 
