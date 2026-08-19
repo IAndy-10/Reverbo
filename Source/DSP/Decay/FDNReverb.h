@@ -26,9 +26,9 @@ public:
     void setReverbMode(int mode);          // 0=High, 1=Low
     void setHighFilterType(bool shelving); // false=LP (default), true=high shelf
     void setInputScale(float s);           // 0=raw input, 1=fully diffused input (scale param)
-    void setDensity(int d);                // 0–3 → 0–4 active DiffusionNetwork stages
+    void setDensity(int d);                // 0-3 -> 0-4 active DiffusionNetwork stages
     void setFlatEnabled(bool f);           // when frozen: bypass CrossoverFilters
-    void setCutEnabled(bool c);            // when frozen: block new input from entering
+    void setCutEnabled(bool c);            // when frozen: hard-block new input immediately
 
     void process(juce::AudioBuffer<float>& buffer);
     void reset();
@@ -46,9 +46,22 @@ private:
     DiffusionNetwork               diffusion;
     std::array<LFO, N>             modLFOs;
 
-    std::array<float, N> decayGain  {};
-    std::array<int, N>   delayLens  {};
-    std::array<float, N> modDepth   {};
+    // RT60-derived gain per line, always computed from decay time.
+    // Blended with 0.9999f via freezeBlend in process() for click-free freeze.
+    std::array<float, N> normalDecayGain {};
+    std::array<int, N>   delayLens       {};
+    std::array<float, N> modDepth        {};
+
+    // Per-line delay length smoother: ramps over 50 ms when setSize() is called,
+    // eliminating the click from an abrupt delay-length change.
+    std::array<juce::SmoothedValue<float>, N> smoothDelayLens;
+
+    // Crossfades from normal RT60 decay to frozen (0.9999f) over ~50 ms.
+    juce::SmoothedValue<float> freezeBlend { 0.0f };
+    // Crossfades damping filter in/out when flat mode is toggled (prevents IIR-state click).
+    juce::SmoothedValue<float> flatBlend   { 0.0f };
+    // Fades new input to zero when freeze is engaged, preventing level accumulation.
+    juce::SmoothedValue<float> inputGate   { 1.0f };
 
     float decayMs       = 1500.0f;
     float dampAmount    = 0.5f;
@@ -56,13 +69,12 @@ private:
     float sizeScale     = 0.5f;
     float crossFreq     = 3000.0f;
     float feedback      = 0.8f;
-    float inputScale    = 0.5f;  // blend: 0=raw input, 1=fully diffused (scale param)
+    float inputScale    = 0.5f;
     bool  frozen        = false;
-    bool  flatEnabledFlag = false; // freeze sub-mode: bypass CrossoverFilters
-    bool  cutEnabledFlag  = false; // freeze sub-mode: block new input
-    int   mode          = 0; // 0=High, 1=Low
+    bool  flatEnabledFlag = false;
+    bool  cutEnabledFlag  = false;
+    int   mode          = 0;
 
-    static constexpr float MOD_DEPTH_BASE = 2.0f; // samples of modulation
-    static constexpr float MOD_FREQ_BASE  = 0.31f; // Hz (different per line)
+    static constexpr float MOD_DEPTH_BASE = 2.0f;
+    static constexpr float MOD_FREQ_BASE  = 0.31f;
 };
-

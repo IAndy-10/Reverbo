@@ -13,7 +13,9 @@ public:
         updateIncrement();
     }
 
-    void reset() { phase = 0.0; }
+    void reset(double initialPhase = 0.0) { phase = initialPhase; }
+
+    double getPhase() const { return phase; }
 
     // Returns sine output in range [-1, 1]
     float getNext() {
