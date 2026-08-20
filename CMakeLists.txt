@@ -29,7 +29,7 @@ FetchContent_MakeAvailable(JUCE)
 # ============================================================
 
 juce_add_plugin(Reverbo
-    COMPANY_NAME "YourCompany"
+    COMPANY_NAME "YoTerra"
     PLUGIN_MANUFACTURER_CODE Ycmp
     PLUGIN_CODE Ap02
     FORMATS Standalone VST3 AU
