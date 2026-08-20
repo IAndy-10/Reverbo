@@ -3,7 +3,7 @@ name: Build Release Binaries
 on:
   push:
     tags:
-      - 'v*'  # Triggers when you push a tag like v1.0.0
+      - 'v*'
 
 jobs:
   build:
@@ -26,6 +26,35 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release
           make -j$(sysctl -n hw.ncpu)
 
+      - name: Import signing certificate
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/signing.keychain
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 16)
+          echo "$CERTIFICATE_BASE64" | tr -d '\n ' | base64 --decode > $RUNNER_TEMP/certificate.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$KEYCHAIN_PATH" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+      - name: Sign binaries
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          codesign --deep --force --options runtime \
+            --sign "Developer ID Application: ITALO ANDRES ROJAS DIAZ ($TEAM_ID)" \
+            build/Reverbo_artefacts/Release/Standalone/Reverbo.app
+          codesign --deep --force --options runtime \
+            --sign "Developer ID Application: ITALO ANDRES ROJAS DIAZ ($TEAM_ID)" \
+            build/Reverbo_artefacts/Release/VST3/Reverbo.vst3
+          codesign --deep --force --options runtime \
+            --sign "Developer ID Application: ITALO ANDRES ROJAS DIAZ ($TEAM_ID)" \
+            build/Reverbo_artefacts/Release/AU/Reverbo.component
+
       - name: Collect binaries
         run: |
           mkdir -p release-artifacts/VST3 release-artifacts/AU
@@ -35,6 +64,30 @@ jobs:
 
       - name: Create release archive
         run: |
+          cd release-artifacts
+          zip -r ../Reverbo-${{ github.ref_name }}-macOS.zip .
+
+      - name: Notarize release archive
+        env:
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+        run: |
+          echo "$APPLE_API_KEY" > $RUNNER_TEMP/api_key.p8
+          xcrun notarytool submit Reverbo-${{ github.ref_name }}-macOS.zip \
+            --key $RUNNER_TEMP/api_key.p8 \
+            --key-id "$APPLE_API_KEY_ID" \
+            --issuer "$APPLE_API_ISSUER_ID" \
+            --wait
+
+      - name: Staple and repackage
+        run: |
+          cd release-artifacts
+          xcrun stapler staple Reverbo.app
+          xcrun stapler staple VST3/Reverbo.vst3
+          xcrun stapler staple AU/Reverbo.component
+          cd ..
+          rm Reverbo-${{ github.ref_name }}-macOS.zip
           cd release-artifacts
           zip -r ../Reverbo-${{ github.ref_name }}-macOS.zip .
 
