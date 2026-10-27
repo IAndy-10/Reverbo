@@ -1,5 +1,7 @@
 # Reverbo
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus) ![JUCE 8](https://img.shields.io/badge/JUCE-8.0.4-8DC63F) ![Formats](https://img.shields.io/badge/formats-VST3%20%7C%20AU%20%7C%20Standalone-555) ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey?logo=apple)
+
 A stereo algorithmic reverb plugin built around an 8-line **Feedback Delay Network (FDN)**.
 
 ## 📥 Download
@@ -105,3 +107,11 @@ This project was built with the assistance of **Claude Sonnet 4.6**.
 Rather than prototyping small and iterating toward complexity, I took a different approach: drawing on my existing knowledge of audio DSP and frontend development, I wrote a detailed specification document upfront covering signal chain design, DSP math, parameter ranges, UI layout, and the C++/JS bridge protocol. The goal was to front-load all the design decisions so the model could follow explicit constraints from the start rather than making architectural choices along the way.
 
 This workflow — spec-first, then implement — kept the LLM acting as an executor of a defined design rather than a co-designer, which produced more predictable and consistent results across the codebase.
+
+---
+
+## License
+
+Reverbo's source code is released under the [MIT License](LICENSE).
+
+It is built on [JUCE](https://juce.com), which is licensed separately (AGPLv3 or the JUCE license). Plugin binaries built from this code are also subject to JUCE's licensing terms.

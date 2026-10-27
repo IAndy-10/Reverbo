@@ -1,0 +1,3 @@
+# Exclude the embedded WebView UI from GitHub language stats
+# so the repo is classified by its C++/JUCE DSP code.
+WebUI/** linguist-vendored
